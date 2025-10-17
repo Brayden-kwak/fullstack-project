@@ -27,7 +27,7 @@ export const useAuth = () => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       queryClient.setQueryData(['user'], data.user);
-    },
+    }
   });
 
   // Logout mutation
@@ -49,7 +49,7 @@ export const useAuth = () => {
     },
   });
 
-  const login = (credentials) => loginMutation.mutate(credentials);
+  const login = (credentials) => loginMutation.mutateAsync(credentials);
   const register = (userData) => registerMutation.mutate(userData);
   const logout = () => logoutMutation.mutate();
   const updateProfile = (profileData) => updateProfileMutation.mutate(profileData);

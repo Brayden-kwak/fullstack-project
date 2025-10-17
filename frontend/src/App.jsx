@@ -39,7 +39,7 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to="/login" replace />;
 };
 
 // Public Route component (redirect to tasks if already logged in)
@@ -54,7 +54,7 @@ const PublicRoute = ({ children }) => {
     );
   }
 
-  return user ? <Navigate to="/tasks" /> : children;
+  return user ? <Navigate to="/tasks" replace /> : children;
 };
 
 function App() {

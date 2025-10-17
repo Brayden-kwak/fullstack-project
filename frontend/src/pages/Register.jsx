@@ -376,8 +376,7 @@ const PasswordToggle = styled.button`
 `;
 
 const StyledInput = styled(Input)`
-  padding-left: 2.5rem;
-  padding-right: 2.5rem;
+  padding: 1rem 2.5rem;
 `;
 
 const LinkText = styled(Link)`

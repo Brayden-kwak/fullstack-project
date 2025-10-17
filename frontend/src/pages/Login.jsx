@@ -22,8 +22,12 @@ const Login = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [searchParams] = useSearchParams();
+  const [fieldErrors, setFieldErrors] = useState({
+    email: '',
+    password: '',
+  });
 
-  const { login, isLoggingIn, loginError } = useAuth();
+  const { login, isLoggingIn } = useAuth();
   const navigate = useNavigate();
 
   // Set email from URL parameter if available
@@ -37,20 +41,61 @@ const Login = () => {
     }
   }, [searchParams]);
 
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+
+    setFieldErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+        
     try {
       await login(formData);
       navigate('/tasks');
     } catch (error) {
       console.error('Login failed:', error);
+      
+      // Handle error directly in handleSubmit
+      // const errorMessage = error.response?.data?.message || 'Login failed';
+      // const errorType = error.response?.data?.error_type;
+      const raw = error?.response?.data;
+      const errorType = raw?.error_type;
+      const errorMessage = typeof raw?.message === 'string' ? raw.message : 'Login failed';
+
+      console.log('Error type:', errorType);
+      console.log('Error message:', errorMessage);
+      
+      if (errorType === 'email_not_found') {
+        setFieldErrors({
+          email: 'Email address does not exist',
+          password: '',
+        });
+      } else if (errorType === 'invalid_password') {
+        setFieldErrors({
+          email: '',
+          password: 'Please check your password',
+        });
+      } else {
+        // Fallback to message-based detection
+        if (errorMessage.toLowerCase().includes('email') || 
+            errorMessage.toLowerCase().includes('user') ||
+            errorMessage.toLowerCase().includes('account')) {
+          setFieldErrors({
+            email: errorMessage,
+            password: '',
+          });
+        } else {
+          setFieldErrors({
+            email: '',
+            password: errorMessage,
+          });
+        }
+      }
     }
   };
 
@@ -68,7 +113,7 @@ const Login = () => {
             </Text>
           </div>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} noValidate>
             <FormGroup>
               <Label htmlFor="email">Email address</Label>
               <InputContainer>
@@ -86,6 +131,9 @@ const Login = () => {
                   onChange={handleChange}
                 />
               </InputContainer>
+              {fieldErrors.email && (
+                <ErrorText>{fieldErrors.email}</ErrorText>
+              )}
             </FormGroup>
 
             <FormGroup>
@@ -111,18 +159,15 @@ const Login = () => {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </PasswordToggle>
               </InputContainer>
+              {fieldErrors.password && (
+                <ErrorText>{fieldErrors.password}</ErrorText>
+              )}
             </FormGroup>
-
-            {loginError && (
-              <ErrorText style={{ textAlign: 'center', marginBottom: '1rem' }}>
-                {loginError.response?.data?.message || 'Login failed'}
-              </ErrorText>
-            )}
 
             <Button
               type="submit"
               disabled={isLoggingIn}
-              style={{ width: '100%' }}
+              style={{ width: '100%', height: '50px', marginTop: '1rem' }}
             >
               {isLoggingIn ? 'Signing in...' : 'Sign in'}
             </Button>
@@ -152,7 +197,7 @@ const LoginCard = styled(Card)`
 
 const InputContainer = styled.div`
   position: relative;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 `;
 
 const InputIcon = styled.div`
@@ -181,8 +226,7 @@ const PasswordToggle = styled.button`
 `;
 
 const StyledInput = styled(Input)`
-  padding-left: 2.5rem;
-  padding-right: 2.5rem;
+  padding: 1rem 2.5rem;
 `;
 
 const LinkText = styled(Link)`

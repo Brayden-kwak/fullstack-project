@@ -6,7 +6,6 @@ import styled from 'styled-components';
 import { 
   Container, 
   Card, 
-  Title, 
   Text, 
   Button, 
   Input, 
@@ -14,6 +13,7 @@ import {
   Label, 
   ErrorText,
 } from '../components/styled/Common';
+import logo from '../assets/images/logo.webp';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -103,15 +103,9 @@ const Login = () => {
     <LoginContainer>
       <Container>
         <LoginCard>
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <Title style={{ marginBottom: '0.5rem' }}>Sign in to your account</Title>
-            <Text>
-              Or{' '}
-              <LinkText to="/register">
-                create a new account
-              </LinkText>
-            </Text>
-          </div>
+          <TopContainer>
+            <img src={logo} alt="Logo" width={130} />
+          </TopContainer>
 
           <form onSubmit={handleSubmit} noValidate>
             <FormGroup>
@@ -172,6 +166,14 @@ const Login = () => {
               {isLoggingIn ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
+          <LinkContainer>
+              <Text size="0.7rem">
+                Sign in to your account Or{' '}
+                <LinkText to="/register">
+                  create a new account
+                </LinkText>
+              </Text>
+            </LinkContainer>
         </LoginCard>
       </Container>
     </LoginContainer>
@@ -193,6 +195,16 @@ const LoginCard = styled(Card)`
   max-width: 400px;
   width: 100%;
   padding: 2rem;
+`;
+
+const TopContainer = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
+`;
+
+const LinkContainer = styled.div`
+  text-align: center;
+  margin-top: 1.5rem;
 `;
 
 const InputContainer = styled.div`

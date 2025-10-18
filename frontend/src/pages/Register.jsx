@@ -15,6 +15,7 @@ import {
   Label, 
   ErrorText
 } from '../components/styled/Common';
+import logo from '../assets/images/logo.webp';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -189,15 +190,12 @@ const Register = () => {
     <RegisterContainer>
       <Container>
         <RegisterCard>
-          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-            <Title style={{ marginBottom: '0.5rem' }}>Create your account</Title>
-            <Text>
-              Or{' '}
-              <LinkText to="/login">
-                sign in to your existing account
-              </LinkText>
-            </Text>
-          </div>
+          <TopContainer>
+            <img src={logo} alt="Logo" width={130} />
+          </TopContainer>
+          <Text size="1rem" marginBottom="1.5rem" style={{ textAlign: 'center', fontWeight: '600' }}>
+            Welcome to Soo&Carrots!
+          </Text>
 
           <form onSubmit={handleSubmit}>
             <FormGroup>
@@ -313,15 +311,24 @@ const Register = () => {
               )}
             </FormGroup>
 
-
             <Button
               type="submit"
               disabled={isRegistering || !isFormValid()}
-              style={{ width: '100%' }}
+              style={{ width: '100%', height: '50px', marginTop: '1rem'}}
             >
               {isRegistering ? 'Creating account...' : 'Create account'}
             </Button>
           </form>
+
+          <RegisterTopContainer>
+            <Text size="0.7rem">
+            Create your account Or{' '}
+              <LinkText to="/login">
+                sign in to your existing account
+              </LinkText>
+            </Text>
+          </RegisterTopContainer>
+
         </RegisterCard>
       </Container>
     </RegisterContainer>
@@ -345,9 +352,19 @@ const RegisterCard = styled(Card)`
   padding: 2rem;
 `;
 
+const RegisterTopContainer = styled.div`
+  text-align: center;
+  margin-top: 1.5rem;
+`;
+
 const InputContainer = styled.div`
   position: relative;
   margin-bottom: 0.4rem;
+`;
+
+const TopContainer = styled.div`
+  text-align: center;
+  margin-bottom: 2rem;
 `;
 
 const InputIcon = styled.div`

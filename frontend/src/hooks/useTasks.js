@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { taskService } from '../services/taskService';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { generateTempId } from '../utils/taskUtils';
 
 export const useTasks = (filters = {}) => {
   const queryClient = useQueryClient();
@@ -39,9 +40,12 @@ export const useTasks = (filters = {}) => {
     refetchOnWindowFocus: false,
   });
 
-  // Check if filters are empty
-  const isFiltersEmpty = (!filters.search || filters.search.trim() === '') && 
-                        (!filters.status || filters.status === '');
+  // Check if filters are empty - memoized
+  const isFiltersEmpty = useMemo(() => 
+    (!filters.search || filters.search.trim() === '') && 
+    (!filters.status || filters.status === ''),
+    [filters.search, filters.status]
+  );
 
   // Update allTasks when new data arrives
   useEffect(() => {
@@ -91,31 +95,33 @@ export const useTasks = (filters = {}) => {
     }
   }, [filters.search, filters.status, isFiltersEmpty, cachedAllTasks]);
 
-  // Load next page function
-  const fetchNextPage = () => {
+  // Load next page function - memoized
+  const fetchNextPage = useCallback(() => {
     if (hasNextPage && !isLoadingMore) {
       setIsLoadingMore(true);
       setCurrentPage(prev => prev + 1);
     }
-  };
+  }, [hasNextPage, isLoadingMore]);
 
-  // Client-side filtering
-  const filteredTasks = allTasks.filter(task => {
-    // Search filter
-    if (filters.search && filters.search.trim() !== '') {
-      const searchTerm = filters.search.toLowerCase();
-      const titleMatch = task.title.toLowerCase().includes(searchTerm);
-      const descriptionMatch = task.description.toLowerCase().includes(searchTerm);
-      if (!titleMatch && !descriptionMatch) return false;
-    }
+  // Client-side filtering - memoized
+  const filteredTasks = useMemo(() => {
+    return allTasks.filter(task => {
+      // Search filter
+      if (filters.search && filters.search.trim() !== '') {
+        const searchTerm = filters.search.toLowerCase();
+        const titleMatch = task.title.toLowerCase().includes(searchTerm);
+        const descriptionMatch = task.description.toLowerCase().includes(searchTerm);
+        if (!titleMatch && !descriptionMatch) return false;
+      }
 
-    // Status filter
-    if (filters.status && filters.status !== '') {
-      if (task.status !== filters.status) return false;
-    }
+      // Status filter
+      if (filters.status && filters.status !== '') {
+        if (task.status !== filters.status) return false;
+      }
 
-    return true;
-  });
+      return true;
+    });
+  }, [allTasks, filters.search, filters.status]);
 
   // Create task mutation with optimistic updates
   const createMutation = useMutation({
@@ -129,7 +135,7 @@ export const useTasks = (filters = {}) => {
 
       // Optimistically update the UI
       const optimisticTask = {
-        id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Unique temporary ID
+        id: generateTempId(),
         ...newTask,
         user_id: queryClient.getQueryData(['user'])?.data?.id,
         created_at: new Date().toISOString(),

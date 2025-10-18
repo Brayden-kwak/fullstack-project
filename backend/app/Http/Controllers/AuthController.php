@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CheckEmailRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -74,16 +76,10 @@ class AuthController extends Controller
     /**
      * Update user profile
      */
-    public function updateProfile(Request $request)
+    public function updateProfile(UpdateProfileRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email|unique:users,email,' . $request->user()->id,
-        ]);
-
         $user = $request->user();
-        $user->update([
-            'email' => $request->email,
-        ]);
+        $user->update($request->validated());
 
         return response()->json([
             'message' => 'Profile updated successfully',
@@ -94,14 +90,9 @@ class AuthController extends Controller
     /**
      * Check if email is available
      */
-    public function checkEmail(Request $request)
+    public function checkEmail(CheckEmailRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-
-        $email = $request->email;
-        $exists = User::where('email', $email)->exists();
+        $exists = User::where('email', $request->email)->exists();
 
         return response()->json([
             'available' => !$exists,

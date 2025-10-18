@@ -17,13 +17,9 @@ class TaskController extends Controller
     {
         $query = $request->user()->tasks();
         
-        // Search filter
+        // Search filter - use model scope
         if ($request->filled('search')) {
-            $searchTerm = $request->search;
-            $query->where(function($q) use ($searchTerm) {
-                $q->where('title', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
-            });
+            $query->search($request->search);
         }
         
         // Status filter
@@ -60,11 +56,7 @@ class TaskController extends Controller
      */
     public function show(Request $request, Task $task)
     {
-        // Ensure user can only access their own tasks
-        if ($task->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
+        $this->authorize('view', $task);
         return new TaskResource($task);
     }
 
@@ -73,13 +65,8 @@ class TaskController extends Controller
      */
     public function update(UpdateTaskRequest $request, Task $task)
     {
-        // Ensure user can only update their own tasks
-        if ($task->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
+        $this->authorize('update', $task);
         $task->update($request->validated());
-
         return new TaskResource($task);
     }
 
@@ -88,13 +75,18 @@ class TaskController extends Controller
      */
     public function destroy(Request $request, Task $task)
     {
-        // Ensure user can only delete their own tasks
-        if ($task->user_id !== $request->user()->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
-
+        $this->authorize('delete', $task);
         $task->delete();
-
         return response()->json(['message' => 'Task deleted successfully']);
+    }
+
+    /**
+     * Authorize the user's access to the task.
+     */
+    private function authorize($ability, Task $task)
+    {
+        if ($task->user_id !== request()->user()->id) {
+            abort(403, 'Unauthorized');
+        }
     }
 }

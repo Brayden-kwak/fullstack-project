@@ -1,17 +1,7 @@
-import { Edit, Trash2, CheckCircle, Clock, Hourglass } from 'lucide-react';
+import { Edit, Trash2, Clock } from 'lucide-react';
 import styled from 'styled-components';
 import { StatusBadge } from './styled/Common';
-
-const getStatusIcon = (status) => {
-  switch (status) {
-    case 'completed':
-      return <CheckCircle size={20} style={{ color: '#10b981' }} />;
-    case 'in_progress':
-      return <Hourglass size={20} style={{ color: '#1e40af' }} />;
-    default:
-      return <Clock size={20} style={{ color: '#9ca3af' }} />;
-  }
-};
+import { getStatusIcon, formatTaskDate } from '../utils/taskUtils';
 
 const TaskList = ({ tasks, onEdit, onDelete }) => {
   if (tasks.length === 0) {
@@ -35,7 +25,7 @@ const TaskList = ({ tasks, onEdit, onDelete }) => {
           <TaskItem>
             <TaskContent>
               <TaskHeader>
-                {getStatusIcon(task.status)}
+                {getStatusIcon(task.status, 20)}
                 <TaskTitle>{task.title}</TaskTitle>
                 <StatusBadge status={task.status}>
                   {task.status.replace('_', ' ')}
@@ -45,7 +35,7 @@ const TaskList = ({ tasks, onEdit, onDelete }) => {
                 <TaskDescription>{task.description}</TaskDescription>
               )}
               <TaskMeta>
-                Created {new Date(task.created_at).toLocaleDateString()}
+                Created {formatTaskDate(task.created_at)}
               </TaskMeta>
             </TaskContent>
             <TaskActions>

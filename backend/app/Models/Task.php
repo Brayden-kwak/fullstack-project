@@ -21,15 +21,6 @@ class Task extends Model
         'user_id',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
 
     /**
      * Get the user that owns the task.
@@ -40,7 +31,7 @@ class Task extends Model
     }
 
     /**
-     * Scope a query to search for a term in the title.
+     * Scope a query to search for a term in the title and description.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @param  string  $term
@@ -48,6 +39,9 @@ class Task extends Model
      */
     public function scopeSearch($query, $term)
     {
-        return $query->where('title', 'like', '%' . $term . '%');
+        return $query->where(function($q) use ($term) {
+            $q->where('title', 'like', '%' . $term . '%')
+              ->orWhere('description', 'like', '%' . $term . '%');
+        });
     }
 }

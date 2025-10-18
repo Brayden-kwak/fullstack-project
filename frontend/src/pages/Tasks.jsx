@@ -16,6 +16,7 @@ import {
   FlexContainer,
   Spinner
 } from '../components/styled/Common';
+import { getErrorMessage } from '../utils/errorUtils';
 
 const Tasks = () => {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ const Tasks = () => {
     deleteError
   } = useTasks(filters);
 
-  const handleCreateTask = async (taskData) => {
+  const handleCreateTask = useCallback(async (taskData) => {
     try {
       await createTask(taskData);
       setShowForm(false);
@@ -52,9 +53,9 @@ const Tasks = () => {
     } catch (error) {
       console.error('Failed to create task:', error);
     }
-  };
+  }, [createTask]);
 
-  const handleUpdateTask = async (taskData) => {
+  const handleUpdateTask = useCallback(async (taskData) => {
     try {
       await updateTask(editingTask.id, taskData);
       setEditingTask(null);
@@ -62,14 +63,14 @@ const Tasks = () => {
     } catch (error) {
       console.error('Failed to update task:', error);
     }
-  };
+  }, [updateTask, editingTask]);
 
-  const handleDeleteTask = (task) => {
+  const handleDeleteTask = useCallback((task) => {
     setTaskToDelete(task);
     setShowDeleteModal(true);
-  };
+  }, []);
 
-  const confirmDelete = async () => {
+  const confirmDelete = useCallback(async () => {
     if (taskToDelete) {
       try {
         await deleteTask(taskToDelete.id);
@@ -79,30 +80,30 @@ const Tasks = () => {
         console.error('Failed to delete task:', error);
       }
     }
-  };
+  }, [deleteTask, taskToDelete]);
 
-  const cancelDelete = () => {
+  const cancelDelete = useCallback(() => {
     setShowDeleteModal(false);
     setTaskToDelete(null);
-  };
+  }, []);
 
-  const handleEditTask = (task) => {
+  const handleEditTask = useCallback((task) => {
     setEditingTask(task);
     setShowForm(true);
-  };
+  }, []);
 
-  const handleCloseForm = () => {
+  const handleCloseForm = useCallback(() => {
     setShowForm(false);
     setEditingTask(null);
-  };
+  }, []);
 
-  const handleFilterChange = (newFilters) => {
-    setFilters({ ...filters, ...newFilters });
-  };
+  const handleFilterChange = useCallback((newFilters) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  }, []);
 
-  const handleUserClick = () => {
+  const handleUserClick = useCallback(() => {
     navigate('/profile');
-  };
+  }, [navigate]);
 
   // Infinite scroll handler
   const handleScroll = useCallback(() => {
@@ -113,7 +114,7 @@ const Tasks = () => {
     if (isNearBottom && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, allTasks.length]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Add scroll event listener with throttling
   useEffect(() => {
@@ -171,17 +172,17 @@ const Tasks = () => {
           <ErrorContainer>
             {createError && (
               <ErrorMessage>
-                Failed to create task: {createError.message}
+                Failed to create task: {getErrorMessage(createError)}
               </ErrorMessage>
             )}
             {updateError && (
               <ErrorMessage>
-                Failed to update task: {updateError.message}
+                Failed to update task: {getErrorMessage(updateError)}
               </ErrorMessage>
             )}
             {deleteError && (
               <ErrorMessage>
-                Failed to delete task: {deleteError.message}
+                Failed to delete task: {getErrorMessage(deleteError)}
               </ErrorMessage>
             )}
           </ErrorContainer>

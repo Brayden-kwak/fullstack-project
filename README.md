@@ -2,6 +2,151 @@
 
 A full-stack web application built with Laravel (Backend) and React (Frontend) for managing personal tasks with user authentication.
 
+## Decisions
+
+### Folder Structure Design
+
+#### Overall Project Structure
+```
+sooAndCarrots/
+├── backend/     # Laravel API server
+└── frontend/    # React client
+```
+
+**Rationale**: 
+- **Separation of Concerns**: Complete separation of backend and frontend enables independent development, deployment, and scaling
+- **Technology Stack Independence**: Optimal technology selection for each layer
+- **Team Collaboration**: Backend and frontend developers can work independently
+- **Maintainability**: Changes in one layer have minimal impact on the other
+
+### Backend Structure (Laravel)
+
+#### Controller Structure
+```
+app/Http/Controllers/
+├── AuthController.php    # Authentication logic
+└── TaskController.php    # Task CRUD logic
+```
+
+**Rationale**:
+- **Single Responsibility Principle**: Each controller handles only one domain (authentication, tasks)
+- **RESTful Design**: Intuitive resource manipulation through HTTP methods and URLs
+- **Code Reusability**: Common logic separated into dedicated methods to eliminate duplication
+
+#### Request Class Separation
+```
+app/Http/Requests/
+├── LoginRequest.php
+├── RegisterRequest.php
+├── StoreTaskRequest.php
+└── UpdateTaskRequest.php
+```
+
+**Rationale**:
+- **Validation Logic Separation**: Clear definition of validation rules for each endpoint
+- **Code Reusability**: Reuse validation logic across multiple locations
+- **Maintainability**: Validation rule changes require modification in only one place
+- **Readability**: Controller code becomes concise with clear intent
+
+#### Resource Class Utilization
+```
+app/Http/Resources/
+├── UserResource.php
+└── TaskResource.php
+```
+
+**Rationale**:
+- **API Consistency**: Provides consistent data structure to clients
+- **Security**: Automatically excludes sensitive information (passwords, etc.)
+- **Flexibility**: Enables data transformation and additional fields as needed
+
+### Frontend Structure (React)
+
+#### Component Structure
+```
+src/
+├── components/
+│   ├── common/           # Reusable common components
+│   │   └── StatusDropdown.jsx
+│   ├── styled/           # Styled components
+│   │   └── Common.js
+│   ├── TaskForm.jsx      # Task creation/edit form
+│   ├── TaskList.jsx      # Task list display
+│   └── TaskFilter.jsx    # Task filtering
+├── pages/                # Page components
+├── hooks/                # Custom hooks
+├── services/             # API communication
+└── utils/                # Utility functions
+```
+
+**Rationale**:
+- **Separation of Concerns**: Separate UI, business logic, and data management
+- **Reusability**: Reuse common components across multiple locations
+- **Scalability**: Extend existing structure while maintaining it when adding new features
+- **Testability**: Test each module independently
+
+#### Custom Hook Utilization
+```
+hooks/
+├── useAuth.js     # Authentication logic
+└── useTasks.js    # Task-related logic
+```
+
+**Rationale**:
+- **Logic Reusability**: Share common logic across components
+- **Separation of Concerns**: Separate UI logic from business logic
+- **Testability**: Independent testing at hook level
+- **Readability**: Component code becomes concise with clear intent
+
+### Backend-Frontend Communication
+
+#### RESTful API Design
+```
+GET    /api/tasks          # Retrieve task list
+POST   /api/tasks          # Create task
+GET    /api/tasks/{id}     # Retrieve specific task
+PUT    /api/tasks/{id}     # Update task
+DELETE /api/tasks/{id}     # Delete task
+```
+
+**Rationale**:
+- **Standardization**: Intuitive API design following HTTP standards
+- **Caching**: Utilize HTTP caching mechanisms
+- **Scalability**: Apply consistent patterns when adding new resources
+- **Documentation**: Easy to write and understand API documentation
+
+#### Authentication Method: Laravel Sanctum
+**Rationale**:
+- **SPA Optimization**: Authentication method optimized for React SPA
+- **Token-based**: Stateless authentication improves server scalability
+- **Security**: CSRF protection and token expiration management
+- **Simplicity**: Perfect integration with Laravel ecosystem
+
+#### Data Fetching: React Query
+**Rationale**:
+- **Caching**: Performance improvement through automatic data caching
+- **Synchronization**: Automatic synchronization between server and client state
+- **Loading States**: Automatic management of loading and error states
+- **Optimistic Updates**: Immediate UI updates for improved user experience
+
+### Maintenance Perspective
+
+#### Code Quality Management
+- **ESLint/Prettier**: Maintain consistent code style
+- **TypeScript Preparation**: Structure design for future type safety
+- **Component Optimization**: Performance optimization through useMemo, useCallback
+
+#### Scalability Considerations
+- **Modularization**: Independent module composition by feature
+- **Configuration Separation**: Separate configuration files by environment
+- **Error Handling**: Apply consistent error handling patterns
+
+#### Development Efficiency
+- **Hot Reload**: Immediate change verification during development
+- **Development Tools**: Utilize React DevTools, Laravel Telescope, etc.
+- **Documentation**: Clear documentation through README and code comments
+
+
 ## Features
 
 ### Backend (Laravel API)

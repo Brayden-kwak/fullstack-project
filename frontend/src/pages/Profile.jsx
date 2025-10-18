@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { ArrowLeft, Mail, User, Save, X } from 'lucide-react';
 import styled from 'styled-components';
@@ -14,6 +14,7 @@ import {
   ErrorText,
   Spinner
 } from '../components/styled/Common';
+import { getErrorMessage } from '../utils/errorUtils';
 
 const Profile = () => {
   const { user, updateProfile, isUpdatingProfile, updateProfileError, isLoadingUser } = useAuth();
@@ -27,7 +28,7 @@ const Profile = () => {
     }
   }, [user, isEditing]);
 
-  const handleEmailChange = (e) => {
+  const handleEmailChange = useCallback((e) => {
     const value = e.target.value;
     setEmail(value);
     
@@ -37,9 +38,9 @@ const Profile = () => {
     } else {
       setEmailError('');
     }
-  };
+  }, []);
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!email || emailError) {
       return;
     }
@@ -50,17 +51,17 @@ const Profile = () => {
     } catch (error) {
       console.error('Failed to update profile:', error);
     }
-  };
+  }, [email, emailError, updateProfile]);
 
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     setEmail(user?.data?.email || user?.email || '');
     setEmailError('');
     setIsEditing(false);
-  };
+  }, [user]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     window.history.back();
-  };
+  }, []);
 
   if (!user || isLoadingUser) {
     return (
@@ -115,7 +116,7 @@ const Profile = () => {
                     )}
                     {updateProfileError && (
                       <ErrorText>
-                        {updateProfileError.response?.data?.message || 'Failed to update email'}
+                        {getErrorMessage(updateProfileError)}
                       </ErrorText>
                     )}
                     <ButtonGroup>
